@@ -1,7 +1,5 @@
 # PrimeWatch
 
-## Project Description
-
 PrimeWatch is a Python script that monitors the Amazon Prime Gaming website for new free game offers and sends notifications to a Discord channel using a webhook. The script extracts the necessary information from the Amazon Prime Gaming website and sends it to the Discord channel in the form of embeds.
 
 ### Installation
