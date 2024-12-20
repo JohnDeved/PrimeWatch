@@ -145,6 +145,7 @@ def send_to_discord(webhook_url, embeds):
     """
     for i in range(0, len(embeds), 10):
         data = {
+            "content": "@everyone",
             "embeds": embeds[i:i + 10]
         }
         response = requests.post(webhook_url, json=data)
