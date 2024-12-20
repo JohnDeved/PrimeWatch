@@ -166,13 +166,18 @@ def load_past_offers():
         pass
     return past_offers
 
-def save_past_offers(past_offers):
+def save_past_offers(new_offers):
     """
-    Save past offers to the JSON Lines file.
+    Append new offers to the JSON Lines file.
     """
-    with jsonlines.open('past_offers', mode='w') as writer:
-        for offer_id, title, start_time, end_time in past_offers:
-            writer.write({'id': offer_id, 'title': title, 'startTime': start_time, 'endTime': end_time})
+    with jsonlines.open('past_offers', mode='a') as writer:
+        for game in new_offers:
+            writer.write({
+                'id': game['id'],
+                'title': game['assets']['title'],
+                'startTime': game['offers'][0]['startTime'],
+                'endTime': game['offers'][0]['endTime']
+            })
 
 def main():
     """
@@ -194,7 +199,7 @@ def main():
         embeds = create_discord_embeds(new_offers)
         webhook_url = load_webhook_url()
         send_to_discord(webhook_url, embeds)
-        save_past_offers(past_offers)
+        save_past_offers(new_offers)
         print(f"{len(new_offers)} new offers posted.")
     else:
         print("No new offers found.")
