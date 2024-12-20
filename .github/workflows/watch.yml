@@ -1,0 +1,33 @@
+name: Watch
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Create config.ini
+      run: echo "${{ secrets.CONFIG_INI }}" > config.ini
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run watch.py
+      run: python watch.py
+
+    - name: Commit changes
+      run: |
+        git add past_offers
+        git commit -m 'Update past_offers'
+        git push
