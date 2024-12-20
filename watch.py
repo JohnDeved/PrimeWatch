@@ -111,8 +111,6 @@ def main():
     Main function to get CSRF and cookie, make GraphQL request, and log the results to the console.
     """
     set_cookie, csrf_key = get_csrf_and_cookie()
-    print(f"Set-Cookie: {set_cookie}")
-    print(f"CSRF-Key: {csrf_key}")
     graphql_response = make_graphql_request(set_cookie, csrf_key)
     print(graphql_response)
 
