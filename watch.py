@@ -4,6 +4,7 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from datetime import datetime
 import configparser
+import jsonlines
 
 def load_webhook_url():
     """
@@ -151,6 +152,27 @@ def send_to_discord(webhook_url, embeds):
             print(f"Failed to send webhook: {response.status_code}, {response.text}")
     return response.status_code
 
+def load_past_offers():
+    """
+    Load past offers from the JSON Lines file.
+    """
+    past_offers = set()
+    try:
+        with jsonlines.open('past_offers', mode='r') as reader:
+            for obj in reader:
+                past_offers.add((obj['id'], obj['title'], obj['startTime'], obj['endTime']))
+    except FileNotFoundError:
+        pass
+    return past_offers
+
+def save_past_offers(past_offers):
+    """
+    Save past offers to the JSON Lines file.
+    """
+    with jsonlines.open('past_offers', mode='w') as writer:
+        for offer_id, title, start_time, end_time in past_offers:
+            writer.write({'id': offer_id, 'title': title, 'startTime': start_time, 'endTime': end_time})
+
 def main():
     """
     Main function to get CSRF and cookie, make GraphQL request, and send the results to the Discord webhook.
@@ -159,9 +181,22 @@ def main():
     graphql_response = make_graphql_request(set_cookie, csrf_key)
     print(graphql_response)
     games = graphql_response['data']['games']['items']
-    embeds = create_discord_embeds(games)
-    webhook_url = load_webhook_url()
-    send_to_discord(webhook_url, embeds)
+    past_offers = load_past_offers()
+    new_offers = []
+    for game in games:
+        start_time = game['offers'][0]['startTime']
+        end_time = game['offers'][0]['endTime']
+        if (game['id'], game['assets']['title'], start_time, end_time) not in past_offers:
+            new_offers.append(game)
+            past_offers.add((game['id'], game['assets']['title'], start_time, end_time))
+    if new_offers:
+        embeds = create_discord_embeds(new_offers)
+        webhook_url = load_webhook_url()
+        send_to_discord(webhook_url, embeds)
+        save_past_offers(past_offers)
+        print(f"{len(new_offers)} new offers posted.")
+    else:
+        print("No new offers found.")
 
 if __name__ == "__main__":
     main()
