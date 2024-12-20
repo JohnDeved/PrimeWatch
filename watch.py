@@ -1,7 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from gql import gql, Client
-from gql.transport.requests import RequestsHTTPTransport
 from datetime import datetime
 import configparser
 import jsonlines
