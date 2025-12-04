@@ -2,7 +2,11 @@ name: Watch
 
 on:
   schedule:
-    - cron: '0 17 * * *'
+    # Primary run on Thursdays at 18:30 UTC - catches both 17:00 and 18:00 releases
+    # Analysis shows ~90% of releases are on Thursdays, with 56% at 17:00 UTC and 35% at 18:00 UTC
+    - cron: '30 18 * * 4'
+    # Safety net on non-Thursday days at 19:00 UTC for occasional off-day releases (~10%)
+    - cron: '0 19 * * 0-3,5-6'
   workflow_dispatch:
 
 jobs:
